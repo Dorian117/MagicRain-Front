@@ -12,17 +12,21 @@ export class AuthService {
   currentUser$ = this.currentUserSubject.asObservable();
 
   constructor(private http: HttpClient, private router: Router) {
-    const stored = localStorage.getItem('magicrain_user');
-    if (stored) {
-      this.currentUserSubject.next(JSON.parse(stored));
+    if (typeof localStorage !== 'undefined') {
+      const stored = localStorage.getItem('magicrain_user');
+      if (stored) {
+        this.currentUserSubject.next(JSON.parse(stored));
+      }
     }
   }
 
   login(data: LoginRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/auth/login`, data).pipe(
       tap(res => {
-        localStorage.setItem('magicrain_token', res.token);
-        localStorage.setItem('magicrain_user', JSON.stringify(res.user));
+        if (typeof localStorage !== 'undefined') {
+          localStorage.setItem('magicrain_token', res.token);
+          localStorage.setItem('magicrain_user', JSON.stringify(res.user));
+        }
         this.currentUserSubject.next(res.user);
       })
     );
@@ -33,13 +37,16 @@ export class AuthService {
   }
 
   logout(): void {
-    localStorage.removeItem('magicrain_token');
-    localStorage.removeItem('magicrain_user');
+    if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem('magicrain_token');
+      localStorage.removeItem('magicrain_user');
+    }
     this.currentUserSubject.next(null);
     this.router.navigate(['/login']);
   }
 
   getToken(): string | null {
+    if (typeof localStorage === 'undefined') return null;
     return localStorage.getItem('magicrain_token');
   }
 
