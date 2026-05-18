@@ -1,1 +1,286 @@
-/* You can add global styles to this file, and also import other style files */
+:root {
+  --bg-dark: #19192e;
+  --accent-red: #dd1100;
+  --text-white: #fefefe;
+  --text-yellow: #fdc302;
+  --bg-light: #d8e3ef;
+  --accent-gold: #fec300;
+  --bg-card: #ffffff;
+  --text-dark: #1a1a2e;
+  --shadow: 0 4px 20px rgba(0,0,0,0.3);
+  --radius: 12px;
+  --transition: all 0.3s ease;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--bg-dark);
+  color: var(--text-white);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  min-height: 100vh;
+}
+
+h1 {
+  color: var(--text-white);
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+h2 {
+  color: var(--text-yellow);
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+h3 {
+  color: var(--text-yellow);
+  font-size: 1.2rem;
+}
+
+a {
+  color: var(--accent-gold);
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+a:hover {
+  color: var(--text-yellow);
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  border-radius: var(--radius);
+  padding: 10px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: var(--transition);
+}
+
+.btn-primary {
+  background-color: var(--accent-red);
+  color: var(--text-white);
+}
+
+.btn-primary:hover {
+  background-color: #bb0e00;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.btn-secondary {
+  background-color: var(--accent-gold);
+  color: var(--text-dark);
+}
+
+.btn-secondary:hover {
+  background-color: var(--text-yellow);
+  transform: translateY(-2px);
+}
+
+.btn-danger {
+  background-color: #cc0000;
+  color: var(--text-white);
+}
+
+.btn-danger:hover {
+  background-color: #aa0000;
+}
+
+.card {
+  background-color: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--shadow);
+  color: var(--text-dark);
+}
+
+.card-dark {
+  background-color: #16213e;
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(254, 195, 0, 0.2);
+}
+
+input, select {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 2px solid #ccc;
+  font-size: 1rem;
+  transition: var(--transition);
+  background-color: var(--bg-light);
+  color: var(--text-dark);
+}
+
+input:focus, select:focus {
+  outline: none;
+  border-color: var(--accent-red);
+  box-shadow: 0 0 0 3px rgba(221, 17, 0, 0.15);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: var(--text-yellow);
+  font-size: 0.9rem;
+}
+
+.error-message {
+  color: #ff4444;
+  font-size: 0.85rem;
+  margin-top: 4px;
+}
+
+.success-message {
+  color: #44bb44;
+  font-size: 0.85rem;
+  margin-top: 4px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--bg-card);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+thead {
+  background-color: var(--accent-red);
+  color: var(--text-white);
+}
+
+thead th {
+  padding: 14px 16px;
+  text-align: left;
+  font-weight: 600;
+}
+
+tbody tr {
+  border-bottom: 1px solid #eee;
+  transition: var(--transition);
+}
+
+tbody tr:hover {
+  background-color: var(--bg-light);
+}
+
+tbody td {
+  padding: 12px 16px;
+  color: var(--text-dark);
+}
+
+.badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.badge-active {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.badge-inactive {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.badge-admin {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.badge-rain {
+  background-color: #cce5ff;
+  color: #004085;
+}
+
+.badge-sun {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.badge-cold {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+
+.badge-cloudy {
+  background-color: #e2e3e5;
+  color: #383d41;
+}
+
+.badge-fog {
+  background-color: #f8f9fa;
+  color: #6c757d;
+}
+
+.page-container {
+  padding: 32px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-box {
+  background-color: #16213e;
+  border-radius: var(--radius);
+  padding: 32px;
+  width: 100%;
+  max-width: 480px;
+  border: 1px solid var(--accent-gold);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--accent-red);
+  border-radius: 4px;
+}
