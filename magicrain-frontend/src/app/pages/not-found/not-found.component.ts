@@ -8,7 +8,7 @@ import { RouterLink } from '@angular/router';
   template: `
     <div class="not-found-container">
       <div class="not-found-card">
-        <div class="magikarp">🐟</div>
+        <img src="assets/magikarp.png" alt="Magikarp" class="magikarp-img" />
         <h1>404</h1>
         <h2>¡Magikarp usó Splash!</h2>
         <p>Pero no pasó nada...</p>
@@ -31,11 +31,12 @@ import { RouterLink } from '@angular/router';
       text-align: center;
       padding: 60px 40px;
     }
-    .magikarp {
-      font-size: 6rem;
+    .magikarp-img {
+      width: 160px;
+      height: auto;
       animation: splash 1s ease-in-out infinite alternate;
       display: block;
-      margin-bottom: 16px;
+      margin: 0 auto 16px;
     }
     @keyframes splash {
       from { transform: rotate(-15deg) translateY(0); }
