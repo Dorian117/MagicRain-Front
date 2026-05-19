@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { NavbarComponent } from '../../shared/components/navbar/navbar.component';
@@ -278,12 +278,16 @@ export class DashboardComponent implements OnInit {
 
   constructor(
     private readingService: ReadingService,
-    private nodeService: NodeService
+    private nodeService: NodeService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
     this.nodeService.getAll().subscribe({
-      next: res => this.nodes = res.nodes,
+      next: res => {
+        this.nodes = res.nodes;
+        this.cdr.detectChanges();
+      },
       error: () => {}
     });
     this.loadData();
@@ -291,25 +295,41 @@ export class DashboardComponent implements OnInit {
 
   loadData() {
     this.loading = true;
+    this.cdr.detectChanges();
     const filters = this.selectedNodeId ? { nodeId: this.selectedNodeId } : {};
-
-    this.readingService.getLatest().subscribe({
-      next: res => this.latestReading = res.reading,
-      error: () => this.latestReading = null
-    });
 
     this.readingService.getAll(filters).subscribe({
       next: res => {
         this.readings = res.readings.slice(0, 20).reverse();
+        this.latestReading = res.readings.length > 0 ? res.readings[0] : null;
         this.buildChart();
         this.loading = false;
+        this.cdr.detectChanges();
       },
-      error: () => this.loading = false
+      error: () => {
+        this.readings = [];
+        this.latestReading = null;
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
     });
+
+    if (!this.selectedNodeId) {
+      this.readingService.getLatest().subscribe({
+        next: res => {
+          this.latestReading = res.reading;
+          this.cdr.detectChanges();
+        },
+        error: () => {}
+      });
+    }
   }
 
   onNodeChange(event: Event) {
     this.selectedNodeId = (event.target as HTMLSelectElement).value;
+    this.readings = [];
+    this.latestReading = null;
+    this.cdr.detectChanges();
     this.loadData();
   }
 
