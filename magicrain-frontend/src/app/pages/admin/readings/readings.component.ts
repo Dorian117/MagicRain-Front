@@ -17,6 +17,9 @@ import { Node } from '../../../core/models/node.model';
       <div class="page-header">
         <h1>📋 Historial de Lecturas</h1>
         <span class="total-badge">{{ total }} lecturas</span>
+        <button class="btn-danger btn-clean" (click)="deleteOrphanReadings()">
+          🗑️ Limpiar sin nodo
+        </button>
       </div>
 
       <div class="filters card-dark">
@@ -110,6 +113,7 @@ import { Node } from '../../../core/models/node.model';
       padding: 8px 12px; background-color: #0f3460; color: #fefefe;
       border: 2px solid rgba(254,195,0,0.2); border-radius: 8px; font-size: 0.9rem; }
     .btn-clear { margin-top: 16px; padding: 8px 20px; font-size: 0.9rem; }
+    .btn-clean { padding: 8px 16px; font-size: 0.85rem; }
     .table-wrapper { border-radius: 12px; overflow: hidden; }
     .btn-sm { padding: 5px 12px; font-size: 0.8rem; }
     .empty { text-align: center; color: #999; padding: 32px; }
@@ -184,6 +188,30 @@ export class ReadingsComponent implements OnInit {
     if (typeof nodeId === 'object') return nodeId?.name || '';
     const node = this.nodes.find(n => n._id === nodeId);
     return node?.name || '';
+  }
+
+  deleteOrphanReadings() {
+    if (!confirm('¿Eliminar todas las lecturas sin nodo asociado?')) return;
+    const orphans = this.readings.filter(r => {
+      if (typeof r.nodeId === 'object') return !r.nodeId?._id;
+      return !this.nodes.find(n => n._id === r.nodeId);
+    });
+    if (orphans.length === 0) {
+      alert('No hay lecturas huérfanas');
+      return;
+    }
+    const deletes = orphans.map(r => this.readingService.delete(r._id!));
+    let completed = 0;
+    deletes.forEach(d => d.subscribe({
+      next: () => {
+        completed++;
+        if (completed === deletes.length) {
+          this.loadReadings();
+          this.cdr.detectChanges();
+        }
+      },
+      error: () => { completed++; }
+    }));
   }
 
   formatDate(date: string): string {
