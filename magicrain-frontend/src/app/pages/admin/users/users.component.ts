@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NavbarComponent } from '../../../shared/components/navbar/navbar.component';
 import { UserService } from '../../../core/services/user.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { User } from '../../../core/models/user.model';
 
 @Component({
@@ -14,6 +15,7 @@ import { User } from '../../../core/models/user.model';
     <div class="page-container">
       <div class="page-header">
         <h1>👥 Gestión de Usuarios</h1>
+        <button class="btn-primary" (click)="openCreateModal()">+ Nuevo Usuario</button>
       </div>
 
       <div class="table-wrapper">
@@ -54,7 +56,7 @@ import { User } from '../../../core/models/user.model';
       <div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
         <div class="modal-box" (click)="$event.stopPropagation()">
           <div class="modal-header">
-            <h2>Editar Usuario</h2>
+            <h2>{{ editingUser ? 'Editar Usuario' : 'Nuevo Usuario' }}</h2>
             <button class="btn-close" (click)="closeModal()">✕</button>
           </div>
           <div class="form-group">
@@ -64,6 +66,17 @@ import { User } from '../../../core/models/user.model';
           <div class="form-group">
             <label>Email</label>
             <input type="email" [(ngModel)]="form.email" />
+          </div>
+          <div class="form-group" *ngIf="!editingUser">
+            <label>Contraseña</label>
+            <input type="password" [(ngModel)]="form.password" placeholder="Mínimo 6 caracteres" />
+          </div>
+          <div class="form-group">
+            <label>Rol</label>
+            <select [(ngModel)]="form.role">
+              <option value="user">Usuario registrado</option>
+              <option value="admin">Administrador</option>
+            </select>
           </div>
           <p class="error-message" *ngIf="errorMsg">{{ errorMsg }}</p>
           <p class="success-message" *ngIf="successMsg">{{ successMsg }}</p>
@@ -88,7 +101,7 @@ import { User } from '../../../core/models/user.model';
     .form-group { margin-bottom: 16px; }
     .form-group label { color: #fdc302; font-weight: 600;
       font-size: 0.9rem; display: block; margin-bottom: 6px; }
-    input { width: 100%; padding: 10px 12px;
+    input, select { width: 100%; padding: 10px 12px;
       background-color: #0f3460; color: #fefefe;
       border: 2px solid rgba(254,195,0,0.2); border-radius: 8px; }
     .error-message { color: #ff4444; font-size: 0.9rem; margin-bottom: 8px; }
@@ -102,9 +115,13 @@ export class UsersComponent implements OnInit {
   loading = false;
   errorMsg = '';
   successMsg = '';
-  form: Partial<User> = { name: '', email: '' };
+  form: any = { name: '', email: '', password: '', role: 'user' };
 
-  constructor(private userService: UserService, private cdr: ChangeDetectorRef) {}
+  constructor(
+    private userService: UserService,
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit() {
     this.loadUsers();
@@ -120,9 +137,17 @@ export class UsersComponent implements OnInit {
     });
   }
 
+  openCreateModal() {
+    this.editingUser = null;
+    this.form = { name: '', email: '', password: '', role: 'user' };
+    this.errorMsg = '';
+    this.successMsg = '';
+    this.showModal = true;
+  }
+
   openEditModal(user: User) {
     this.editingUser = user;
-    this.form = { name: user.name, email: user.email };
+    this.form = { name: user.name, email: user.email, password: '', role: user.role };
     this.errorMsg = '';
     this.successMsg = '';
     this.showModal = true;
@@ -138,23 +163,68 @@ export class UsersComponent implements OnInit {
       this.errorMsg = 'Nombre y email son requeridos';
       return;
     }
+    if (!this.editingUser && !this.form.password) {
+      this.errorMsg = 'La contraseña es requerida';
+      return;
+    }
     this.loading = true;
     this.errorMsg = '';
 
-    this.userService.update(this.editingUser!._id!, this.form).subscribe({
-      next: () => {
-        this.successMsg = 'Usuario actualizado';
-        this.loading = false;
-        this.loadUsers();
-        setTimeout(() => { this.showModal = false; this.successMsg = ''; }, 1500);
-        this.cdr.detectChanges();
-      },
-      error: err => {
-        this.errorMsg = err.error?.message || 'Error al guardar';
-        this.loading = false;
-        this.cdr.detectChanges();
-      }
-    });
+    if (this.editingUser) {
+      const updateData: any = { name: this.form.name, email: this.form.email, role: this.form.role };
+      this.userService.update(this.editingUser._id!, updateData).subscribe({
+        next: () => {
+          this.successMsg = 'Usuario actualizado';
+          this.loading = false;
+          this.loadUsers();
+          setTimeout(() => { this.showModal = false; this.successMsg = ''; }, 1500);
+          this.cdr.detectChanges();
+        },
+        error: err => {
+          this.errorMsg = err.error?.message || 'Error al guardar';
+          this.loading = false;
+          this.cdr.detectChanges();
+        }
+      });
+    } else {
+      this.authService.register({
+        name: this.form.name,
+        email: this.form.email,
+        password: this.form.password
+      }).subscribe({
+        next: (res: any) => {
+          if (this.form.role === 'admin') {
+            this.userService.update(res.user.id || res.user._id, { role: 'admin' }).subscribe({
+              next: () => {
+                this.successMsg = 'Usuario admin creado';
+                this.loading = false;
+                this.loadUsers();
+                setTimeout(() => { this.showModal = false; this.successMsg = ''; }, 1500);
+                this.cdr.detectChanges();
+              },
+              error: () => {
+                this.successMsg = 'Usuario creado (rol no actualizado)';
+                this.loading = false;
+                this.loadUsers();
+                setTimeout(() => { this.showModal = false; }, 1500);
+                this.cdr.detectChanges();
+              }
+            });
+          } else {
+            this.successMsg = 'Usuario creado exitosamente';
+            this.loading = false;
+            this.loadUsers();
+            setTimeout(() => { this.showModal = false; this.successMsg = ''; }, 1500);
+            this.cdr.detectChanges();
+          }
+        },
+        error: err => {
+          this.errorMsg = err.error?.message || 'Error al crear usuario';
+          this.loading = false;
+          this.cdr.detectChanges();
+        }
+      });
+    }
   }
 
   deleteUser(id: string) {

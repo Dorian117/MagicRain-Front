@@ -8,7 +8,7 @@ import { RouterLink } from '@angular/router';
   template: `
     <div class="not-found-container">
       <div class="not-found-card">
-        <img src="assets/magikarp.png" alt="Magikarp" class="magikarp-img" />
+        <<img src="assets/magikarp.png" alt="Magikarp" class="magikarp-img" />
         <h1>404</h1>
         <h2>¡Magikarp usó Splash!</h2>
         <p>Pero no pasó nada...</p>
